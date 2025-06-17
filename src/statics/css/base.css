@@ -42,6 +42,7 @@ h1 {
 .form-group {
     margin-bottom: 25px;
     text-align: left;
+    max-block-size: 100%;
 }
 
 label {
@@ -58,6 +59,10 @@ input[type="text"] {
     border-radius: var(--border-radius);
     font-size: 1rem;
     box-sizing: border-box;
+}
+
+.lbl-drop-title {
+    text-align: center;
 }
 
 /* Drag and Drop Area */
@@ -83,6 +88,7 @@ input[type="text"] {
 }
 
 .drop-zone__prompt {
+    text-align: center;
     font-size: 1.1rem;
     color: var(--primary-color);
     font-weight: 500;
@@ -97,10 +103,14 @@ input[type="text"] {
 }
 
 .file-name-display {
-    /* Nova classe para os spans de nome de arquivo */
     margin-top: 10px;
     font-size: 0.9rem;
     color: var(--dark-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block;
 }
 
 input[type="file"] {
