@@ -1,17 +1,15 @@
-// Referências para os novos elementos de D&D do JSON
 const markdownDropZone = document.getElementById('markdown-drop-zone');
 const markdownFileInput = document.getElementById('markdown_file');
 const markdownFileNameSpan = document.getElementById('markdown-file-name');
 
-const jsonDropZone = document.getElementById('json-drop-zone'); // Novo!
-const jsonFileInput = document.getElementById('postman_json_file'); // Novo!
-const jsonFileNameSpan = document.getElementById('json-file-name'); // Novo!
+const jsonDropZone = document.getElementById('json-drop-zone');
+const jsonFileInput = document.getElementById('postman_json_file');
+const jsonFileNameSpan = document.getElementById('json-file-name');
 
 const uploadForm = document.getElementById('uploadForm');
 const messageBox = document.getElementById('messageBox');
 const loadingOverlay = document.getElementById('loading-overlay');
 
-// Funções de loading
 function showLoading() {
     loadingOverlay.classList.add('show');
 }
@@ -19,10 +17,8 @@ function hideLoading() {
     loadingOverlay.classList.remove('show');
 }
 
-// --- Lógica de Drag and Drop para MARKDOWN ---
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     markdownDropZone.addEventListener(eventName, preventDefaults, false);
-    // document.body.addEventListener(eventName, preventDefaults, false); // Já feito para o JSON D&D
 });
 markdownDropZone.addEventListener('dragenter', () => markdownDropZone.classList.add('highlight'), false);
 markdownDropZone.addEventListener('dragleave', () => markdownDropZone.classList.remove('highlight'), false);
@@ -33,10 +29,9 @@ function handleMarkdownDrop(e) {
     if (files.length > 0) {
         markdownFileInput.files = files;
         updateMarkdownFileName();
-        // Limpa o outro campo de upload
         jsonFileInput.value = '';
         jsonFileNameSpan.textContent = 'Nenhum arquivo JSON selecionado';
-        hideMessage(); // Esconde qualquer mensagem de erro do outro campo
+        hideMessage();
     }
 }
 markdownDropZone.addEventListener('click', () => { markdownFileInput.click(); });
@@ -52,7 +47,7 @@ function updateMarkdownFileName() {
             markdownFileNameSpan.textContent = 'Nenhum arquivo selecionado';
         } else {
             hideMessage();
-            // Garante que o campo JSON esteja limpo ao selecionar MD
+
             jsonFileInput.value = '';
             jsonFileNameSpan.textContent = 'Nenhum arquivo JSON selecionado';
         }
@@ -61,7 +56,6 @@ function updateMarkdownFileName() {
     }
 }
 
-// --- Lógica de Drag and Drop para JSON ---
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     jsonDropZone.addEventListener(eventName, preventDefaults, false);
     document.body.addEventListener(eventName, preventDefaults, false); // Para capturar drops fora da zona
@@ -75,10 +69,10 @@ function handleJsonDrop(e) {
     if (files.length > 0) {
         jsonFileInput.files = files;
         updateJsonFileName();
-        // Limpa o outro campo de upload
+
         markdownFileInput.value = '';
         markdownFileNameSpan.textContent = 'Nenhum arquivo selecionado';
-        hideMessage(); // Esconde qualquer mensagem de erro do outro campo
+        hideMessage();
     }
 }
 jsonDropZone.addEventListener('click', () => { jsonFileInput.click(); });
@@ -94,7 +88,7 @@ function updateJsonFileName() {
             jsonFileNameSpan.textContent = 'Nenhum arquivo JSON selecionado';
         } else {
             hideMessage();
-            // Garante que o campo MD esteja limpo ao selecionar JSON
+
             markdownFileInput.value = '';
             markdownFileNameSpan.textContent = 'Nenhum arquivo selecionado';
         }
@@ -103,7 +97,6 @@ function updateJsonFileName() {
     }
 }
 
-// --- Lógica de Envio do Formulário (Atualizada) ---
 uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -113,7 +106,6 @@ uploadForm.addEventListener('submit', async (e) => {
     const hasMarkdownFile = markdownFileInput.files.length > 0;
     const hasJsonFile = jsonFileInput.files.length > 0;
 
-    // Validação: precisa ter UM OU OUTRO
     if (!hasMarkdownFile && !hasJsonFile) {
         showMessage('Por favor, selecione ou arraste um arquivo Markdown ou um arquivo JSON da Coleção Postman.', 'error');
         return;
@@ -179,7 +171,6 @@ function hideMessage() {
     messageBox.style.display = 'none';
 }
 
-// Impede o comportamento padrão do navegador para arrastar e soltar em todo o documento
 function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();

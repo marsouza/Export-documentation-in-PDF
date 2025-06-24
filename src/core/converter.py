@@ -1,5 +1,3 @@
-# src/core/converter.py
-
 from markdown2 import markdown
 from weasyprint import HTML, CSS
 from os import path
