@@ -1,4 +1,3 @@
-# src/api/main.py
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,19 +20,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Caminho base do projeto
-BASE_DIR = Path(__file__).resolve().parent.parent.parent # Vai para 'markdown_to_pdf_converter'
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Configura o diretório de templates para Jinja2
 templates = Jinja2Templates(directory=str(BASE_DIR / "src" / "templates"))
 
-# Configurar diretório para arquivos estáticos
-# O 'directory' deve ser o caminho real da pasta 'static' no seu projeto.
-# O 'name' é um nome interno para a rota estática.
-# O prefixo '/static' é o URL que você usará no navegador.
 app.mount("/statics", StaticFiles(directory=str(BASE_DIR / "src" / "statics")), name="statics")
 
-# Diretório temporário para salvar arquivos
 TEMP_DIR = BASE_DIR / "temp"
 TEMP_DIR.mkdir(exist_ok=True) # Garante que o diretório temp existe
 
@@ -47,8 +39,8 @@ async def read_root():
 
 @app.post("/convert/", summary="Converte um arquivo Markdown ou JSON de coleção Postman para PDF")
 async def convert_to_pdf(
-    markdown_file: UploadFile = File(None), # Para arquivo .md
-    postman_json_file: UploadFile = File(None), # NOVO: Para o arquivo .json do Postman
+    markdown_file: UploadFile = File(None),
+    postman_json_file: UploadFile = File(None),
     header_text: str = Form("Documentação")
 ):
     """
@@ -70,7 +62,6 @@ async def convert_to_pdf(
 
     try:
         if markdown_file and markdown_file.filename:
-            # Processa o upload de arquivo Markdown
             if not markdown_file.filename.endswith(('.md', '.markdown')):
                 raise HTTPException(
                     status_code=400,
@@ -83,7 +74,6 @@ async def convert_to_pdf(
                 shutil.copyfileobj(markdown_file.file, buffer)
             
         elif postman_json_file and postman_json_file.filename:
-            # Processa a conversão de arquivo JSON do Postman
             if not postman_json_file.filename.endswith('.json'):
                 raise HTTPException(
                     status_code=400,
@@ -91,19 +81,16 @@ async def convert_to_pdf(
                 )
 
             unique_id = secrets.token_hex(8)
-            input_md_path = TEMP_DIR / f"postman_doc_{unique_id}.md" # O MD será gerado aqui
-            output_pdf_filename = f"postman_collection_{unique_id}.pdf" # Nome do PDF final
+            input_md_path = TEMP_DIR / f"postman_doc_{unique_id}.md"
+            output_pdf_filename = f"postman_collection_{unique_id}.pdf"
 
             try:
-                # Lê o conteúdo do arquivo JSON
                 json_content = await postman_json_file.read()
-                postman_data = json.loads(json_content) # Carrega o JSON
+                postman_data = json.loads(json_content)
                 
-                # Instancia o conversor de JSON para Markdown
                 parser = PostmanJsonToMarkdown(postman_data)
                 markdown_content = parser.convert_to_markdown()
                 
-                # Salva o Markdown gerado em um arquivo temporário para o conversor de PDF
                 with open(input_md_path, "w", encoding="utf-8") as f:
                     f.write(markdown_content)
                 
@@ -120,13 +107,10 @@ async def convert_to_pdf(
                 detail="Por favor, envie um arquivo Markdown ou um arquivo JSON de coleção Postman."
             )
 
-        # Continuação do processo para ambos os casos
         output_pdf_path = TEMP_DIR / output_pdf_filename
 
-        # Gera o CSS com o texto do cabeçalho dinâmico
         dynamic_css = generate_pdf_css(header_text)
 
-        # Converte o Markdown para PDF
         try:
             converter = MarkdownToPDFConverter(
                 md_path=str(input_md_path),
@@ -139,7 +123,6 @@ async def convert_to_pdf(
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Erro durante a conversão para PDF: {e}")
         
-        # Retorna o PDF gerado para download
         return FileResponse(
             path=str(output_pdf_path),
             filename=output_pdf_filename,
@@ -152,8 +135,7 @@ async def convert_to_pdf(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro inesperado no servidor: {e}")
     finally:
-        # Garante que os arquivos Markdown e PDF temporários sejam removidos
         if input_md_path and os.path.exists(input_md_path):
             os.remove(input_md_path)
         if output_pdf_path and os.path.exists(output_pdf_path):
-            pass # FileResponse já lida com a exclusão do PDF após o envio.
+            pass
